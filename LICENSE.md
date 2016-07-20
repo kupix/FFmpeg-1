@@ -86,6 +86,7 @@ The following libraries are under GPL:
 - frei0r
 - libcdio
 - librubberband
+- libturing
 - libvidstab
 - libx264
 - libx265

@@ -271,6 +271,7 @@ static int libx265_encode_frame(AVCodecContext *avctx, AVPacket *pkt,
         }
 
         x265pic.pts      = pic->pts;
+        printf("pts in=%lld\n", x265pic.pts);
         x265pic.bitDepth = av_pix_fmt_desc_get(avctx->pix_fmt)->comp[0].depth;
 
         x265pic.sliceType = pic->pict_type == AV_PICTURE_TYPE_I ? X265_TYPE_I :
@@ -307,6 +308,8 @@ static int libx265_encode_frame(AVCodecContext *avctx, AVPacket *pkt,
 
     pkt->pts = x265pic_out.pts;
     pkt->dts = x265pic_out.dts;
+    printf("pts=%lld ", x265pic_out.pts);
+    printf("dts=%lld\n", x265pic_out.dts);
 
 #if FF_API_CODED_FRAME
 FF_DISABLE_DEPRECATION_WARNINGS

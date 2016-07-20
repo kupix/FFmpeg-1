@@ -259,6 +259,7 @@ External library support:
   --enable-libssh          enable SFTP protocol via libssh [no]
   --enable-libtesseract    enable Tesseract, needed for ocr filter [no]
   --enable-libtheora       enable Theora encoding via libtheora [no]
+  --enable-libturing       enable HEVC encoding via libturing [no]
   --enable-libtwolame      enable MP2 encoding via libtwolame [no]
   --enable-libv4l2         enable libv4l2/v4l-utils [no]
   --enable-libvidstab      enable video stabilization using vid.stab [no]
@@ -1520,6 +1521,7 @@ EXTERNAL_LIBRARY_LIST="
     libssh
     libtesseract
     libtheora
+    libturing
     libtwolame
     libv4l2
     libvidstab
@@ -2786,6 +2788,7 @@ libspeex_decoder_deps="libspeex"
 libspeex_encoder_deps="libspeex"
 libspeex_encoder_select="audio_frame_queue"
 libtheora_encoder_deps="libtheora"
+libturing_encoder_deps="libturing"
 libtwolame_encoder_deps="libtwolame"
 libvo_amrwbenc_encoder_deps="libvo_amrwbenc"
 libvorbis_decoder_deps="libvorbis"
@@ -5030,6 +5033,7 @@ die_license_disabled gpl frei0r
 die_license_disabled gpl libcdio
 die_license_disabled gpl librubberband
 die_license_disabled gpl libsmbclient
+die_license_disabled gpl libturing
 die_license_disabled gpl libvidstab
 die_license_disabled gpl libx264
 die_license_disabled gpl libx265
@@ -5700,6 +5704,7 @@ enabled libssh            && require_pkg_config libssh libssh/sftp.h sftp_init
 enabled libspeex          && require_pkg_config speex speex/speex.h speex_decoder_init -lspeex
 enabled libtesseract      && require_pkg_config tesseract tesseract/capi.h TessBaseAPICreate
 enabled libtheora         && require libtheora theora/theoraenc.h th_info_init -ltheoraenc -ltheoradec -logg
+enabled libturing         && require libturing turing.h turing_version -lturing -lstdc++ -lboost_chrono -lboost_program_options -lboost_timer -lboost_system -lboost_filesystem -lhavoc 
 enabled libtwolame        && require libtwolame twolame.h twolame_init -ltwolame &&
                              { check_lib twolame.h twolame_encode_buffer_float32_interleaved -ltwolame ||
                                die "ERROR: libtwolame must be installed and version must be >= 0.3.10"; }
