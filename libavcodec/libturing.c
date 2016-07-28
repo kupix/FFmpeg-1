@@ -63,6 +63,17 @@ static av_cold int libturing_encode_init(AVCodecContext *avctx)
     *p++ = s += 1 + snprintf(s, end - s, "--frame-rate=%f", (double)avctx->time_base.den / (avctx->time_base.num * avctx->ticks_per_frame));
     *p++ = s += 1 + snprintf(s, end - s, "--frames=0");
 
+    {
+        int const bit_depth = av_pix_fmt_desc_get(avctx->pix_fmt)->comp[0].depth;
+        if (bit_depth != 8 && bit_depth != 10) {
+            av_log(avctx, AV_LOG_ERROR, "Encoder input must be 8- or 10-bit.\n");
+            turing_destroy_encoder(ctx->encoder);
+            return AVERROR_INVALIDDATA;
+        }
+        *p++ = s += 1 + snprintf(s, end - s, "--bit-depth=%d", bit_depth);
+        *p++ = s += 1 + snprintf(s, end - s, "--internal-bit-depth=%d", bit_depth);
+    }
+
     if (avctx->sample_aspect_ratio.num > 0 && avctx->sample_aspect_ratio.den > 0) {
         int sar_num, sar_den;
 
@@ -78,9 +89,20 @@ static av_cold int libturing_encode_init(AVCodecContext *avctx)
         AVDictionaryEntry *en = NULL;
 
         if (!av_dict_parse_string(&dict, ctx->options, "=", ":", 0)) {
-            while ((en = av_dict_get(dict, "", en, AV_DICT_IGNORE_SUFFIX)))
-                *p++ = s += 1 + snprintf(s, end - s, "--%s=%s", en->key, en->value);
-
+            while ((en = av_dict_get(dict, "", en, AV_DICT_IGNORE_SUFFIX))) {
+                int const illegal_option = 
+                    !strcmp("input-res", en->key) ||
+                    !strcmp("frame-rate", en->key) ||
+                    !strcmp("f", en->key) ||
+                    !strcmp("frames", en->key) ||
+                    !strcmp("sar", en->key) ||
+                    !strcmp("bit-depth", en->key) ||
+                    !strcmp("internal-bit-depth", en->key);
+                if (illegal_option) 
+                    av_log(avctx, AV_LOG_WARNING, "%s=%s ignored.\n", en->key, en->value);
+                else
+                    *p++ = s += 1 + snprintf(s, end - s, "--%s=%s", en->key, en->value);
+            }
             av_dict_free(&dict);
         }
     }
@@ -170,6 +192,7 @@ static int libturing_encode_frame(AVCodecContext *avctx, AVPacket *pkt, const AV
 }
 
 static const enum AVPixelFormat turing_csp[] = {
+    AV_PIX_FMT_YUV420P10,
     AV_PIX_FMT_YUV420P,
     AV_PIX_FMT_NONE
 };
